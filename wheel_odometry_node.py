@@ -4,6 +4,8 @@ from rclpy.node import Node
 from robot_kinematics import DiffDriveKinematics,MecanumKinematics,ThreeWheelOmniKinematics,FourWheelOmniKinematics
 from std_msgs.msg import Float64MultiArray
 from nav_msgs.msg import Odometry
+from math import sin,cos
+from geometry_msgs.msg import TransformStamped
 class WheelOdometryNode(Node):
     def __init__(self):
         super().__init__('wheel_odometry_node')
@@ -37,6 +39,7 @@ class WheelOdometryNode(Node):
         #subscriber + publisher
         self.subscribe = self.create_subscription(Float64MultiArray,'/encoder_speeds',self.encoder_callback,10)
         self.pub = self.create_publisher(Odometry,'/odom',10)
+        self.broad = TransformBroadcaster(self)
     def encoder_callback(self,msg):
         #current time
         curr = self.get_clock().now()
@@ -47,7 +50,7 @@ class WheelOdometryNode(Node):
             return
         #get forward kinematics 
         vx,vy,w=self.kinematics.forward(msg.data)
-        # integration
+        # pose integration
         dx = (vx * cos(self.yaw) - vy * sin(self.yaw)) * diff
         dy = (vx * sin(self.yaw) + vy * cos(self.yaw)) * diff
         dyaw = w * diff
@@ -56,19 +59,36 @@ class WheelOdometryNode(Node):
         self.y += dy
         self.yaw += dyaw
         #publish new values
-        msg = Odometry()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'odom'
-        msg.pose.pose.position.x = self.x
-        msg.pose.pose.position.y = self.y
-        msg.pose.pose.orientation.z = sin(self.yaw/2.0)
-        msg.pose.pose.orientation.w = cos(self.yaw/2.0)
-        msg.child_frame_id = 'base_link'
-        msg.twist.twist.linear.x = vx
-        msg.twist.twist.linear.y = vy
-        msg.twist.twist.angular.z = w
-        self.pub.publish(msg)
+        omsg = Odometry()
+        omsg.header.stamp = self.get_clock().now().to_msg()
+        omsg.header.frame_id = 'odom'
+        omsg.pose.pose.position.x = self.x
+        omsg.pose.pose.position.y = self.y
+        omsg.pose.pose.orientation.z = sin(self.yaw/2.0)
+        omsg.pose.pose.orientation.w = cos(self.yaw/2.0)
+        omsg.child_frame_id = 'base_link'
+        omsg.twist.twist.linear.x = vx
+        omsg.twist.twist.linear.y = vy
+        omsg.twist.twist.angular.z = w
+        self.pub.publish(omsg)
+        # TF broadcast (ig)
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'odom'
+        t.child_frame_id = 'base_link'
+        t.transform.translation.x = self.x
+        t.transform.translation.y = self.y
+        t.transform.rotation.z = sin(self.yaw/2.0)
+        t.transform.rotation.w = cos(self.yaw/2.0)
+        self.broad.sendTransform(t)
+
         
+    def main(args=None):
+        rclpy.init(args = args)
+        node = WheelOdemetryNode()
+        rclpy.spin(node)
+        node.distroy_node()
+        rclpy.shutdown()
 
         
 
