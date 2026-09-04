@@ -79,3 +79,16 @@ class DiffDriveKinematics(Kinematics):
             [0, 0, 0, 0],
             [-1/ (2*self.W), 1/ (2*self.W), -1/ (2*self.W), 1/ (2*self.W)]
         ])
+
+    def inverse(self, vx, vy, vz):
+        vel = np.array([vx, vy, vz])
+
+        # Return the multiplication of the two matrices
+        return self.M_inverse @ vel
+
+    def forward(self, w):
+        # Store the wheel speeds in an array/matrix
+        wheels = np.array(w)
+
+        # Order of multiplication matters
+        return self.M_forward @ wheels
