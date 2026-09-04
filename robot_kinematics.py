@@ -36,6 +36,10 @@ class MecanumKinematics(Kinematics):
         wheels = np.dot(self.M_inverse, vel)
         return list(wheels)
 
+    def forward(self, w):
+        wheels = np.array(w)
+
+        return self.M_forward @ wheels
 
 class FourWheelOmniKinematics(Kinematics):
     def __init__(self, L, W, R):
@@ -57,6 +61,10 @@ class FourWheelOmniKinematics(Kinematics):
         wheels = np.dot(self.M_inverse, vel)
         return list(wheels)
 
+    def forward(self, w):
+        wheels = np.array(w)
+
+        return self.M_forward @ wheels
 
 class ThreeWheelOmniKinematics(Kinematics):
 
@@ -74,6 +82,18 @@ class ThreeWheelOmniKinematics(Kinematics):
         ])
         # Forward matrix obtained using psuedo inverse 
         self.M_forward = np.linalg.pinv(self.M_inverse)
+
+    # Inverse kinematics for three-omni wheels
+    def inverse(self, vx, vy, vz):
+        vel = np.array([vx, vy, vz])
+
+        return self.M_inverse @ vel
+
+    # Forward kinematics for three-omni wheels
+    def forward(self, w):
+        wheels = np.array(w)
+
+        return self.M_forward @ wheels
 
 class DiffDriveKinematics(Kinematics):
     def __init__(self, L, W, R):
