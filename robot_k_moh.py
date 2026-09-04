@@ -2,11 +2,14 @@ import numpy as np
 
 class Kinematics:
     def __init__(self, L, W, R):
+        # Track width (distance between left and right wheels)
         self.L = L
+        # Wheel base length
         self.W = W
+        # Wheel radius
         self.R = R
-        self.M_forward = 0
-        self.M_inverse = 0
+        self.M_forward = None
+        self.M_inverse = None
     # Define the interface used functions in the parent class
     def inverse(self, vx, vy, vz):
         ...
@@ -59,4 +62,20 @@ class ThreeWheelOmniKinematics(Kinematics):
 
 
 class DiffDriveKinematics(Kinematics):
-    ... #TODO
+    def __init__(self, L, W, R):
+        super().__init__(L, W, R)
+
+        # Define the kinematic matrices for the sub-class
+        # Inverse Kinematics matrix
+        self.M_inverse = (1/R) * np.array([
+            [1, 0, -self.W/2]
+            [1, 0, self.W/2]
+            [1, 0, -self.W/2]
+            [1, 0, self.W/2]
+        ])
+        # Forward Kinematics matrix (Inverse Matrix of Inverse)
+        self.M_forward = R * np.array([
+            [1/4, 1/4, 1/4, 1/4],
+            [0, 0, 0, 0],
+            [-1/ (2*self.W), 1/ (2*self.W), -1/ (2*self.W), 1/ (2*self.W)]
+        ])
