@@ -1,6 +1,6 @@
 
 import rclpy
-from rcplpy import Node
+from rcplpy.node import Node
 class WheelOdometryNode(Node):
     def __init__(self):
         super().__init__('wheel_odometry_node')
@@ -12,4 +12,7 @@ class WheelOdometryNode(Node):
         self.y = 0.0
         self.yaw=0.0
         self.time = self.get_clock().now()
-    
+        self.drive_type = self.get_parameter('drive_type').value
+        self.track_width = self.get_parameter('track_width').value
+        self.wheelbase = self.get_parameter('wheelbase').value
+        self.wheel_radius = self.get_parameter('wheel_radius').value
