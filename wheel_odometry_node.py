@@ -1,11 +1,19 @@
 
 import rclpy
 from rclpy.node import Node
+<<<<<<< HEAD
 from robot_kinematics import DiffDriveKinematics,MecanumKinematics,ThreeWheelOmniKinematics,FourWheelOmniKinematics
+=======
+from moveIt.robot_kinematics import DiffDriveKinematics,MecanumKinematics,ThreeWheelOmniKinematics,FourWheelOmniKinematics
+>>>>>>> 1a774a7 (fixed)
 from std_msgs.msg import Float64MultiArray
 from nav_msgs.msg import Odometry
 from math import sin,cos
 from geometry_msgs.msg import TransformStamped
+<<<<<<< HEAD
+=======
+from tf2_ros import TransformBroadcaster
+>>>>>>> 1a774a7 (fixed)
 class WheelOdometryNode(Node):
     def __init__(self):
         super().__init__('wheel_odometry_node')
@@ -83,14 +91,28 @@ class WheelOdometryNode(Node):
         self.broad.sendTransform(t)
 
         
+<<<<<<< HEAD
     def main(args=None):
         rclpy.init(args = args)
         node = WheelOdemetryNode()
         rclpy.spin(node)
         node.distroy_node()
         rclpy.shutdown()
+=======
+def main(args=None):
+    rclpy.init(args = args)
+    node = WheelOdometryNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+>>>>>>> 1a774a7 (fixed)
 
         
 
         
+<<<<<<< HEAD
 
+=======
+if __name__ == '__main__':
+    main()
+>>>>>>> 1a774a7 (fixed)
