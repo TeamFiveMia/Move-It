@@ -1,0 +1,9 @@
+desktop.ini
+CmakeLists.txt
+package.xml
+build/
+install/
+log/
+*.pyc
+__pycache__/
+.git/
